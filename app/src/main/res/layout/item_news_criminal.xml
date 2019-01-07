@@ -13,7 +13,16 @@
 
         android:layout_margin="@dimen/card_elements_margins"
        >
-
+        <ImageView
+            android:id="@+id/image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@drawable/cover_criminal"
+            android:alpha="0.1"
+            android:layout_alignTop="@+id/category"
+            android:layout_alignBottom="@+id/date"
+            android:scaleType="centerCrop"
+             />
         <TextView
             android:id="@+id/category"
             android:layout_width="wrap_content"

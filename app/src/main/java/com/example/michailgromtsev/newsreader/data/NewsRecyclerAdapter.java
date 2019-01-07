@@ -32,6 +32,9 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
     @Nullable
     private final OnItemClickListener clickListener;
 
+    private final int TYPE_SIMPLE_NEWS_ITEM = 0;
+    private final int TYPE_CRIMINAL_NEWS_ITEM = 1;
+
     public NewsRecyclerAdapter(@NonNull Context context, @NonNull List<NewsItem> news,
                                @Nullable OnItemClickListener clickListener) {
         this.news = news;
@@ -48,7 +51,22 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(inflater.inflate(R.layout.item_news,parent,false),clickListener);
+        View view;
+        if (viewType == TYPE_CRIMINAL_NEWS_ITEM) {
+            view = inflater.inflate(R.layout.item_news_criminal,parent,false);
+        } else {
+            view = inflater.inflate(R.layout.item_news,parent,false);
+        }
+        return new ViewHolder(view,clickListener);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (news.get(position).getCategory().getName().equals("Criminal")) {
+            return TYPE_CRIMINAL_NEWS_ITEM;
+        } else {
+            return TYPE_SIMPLE_NEWS_ITEM;
+        }
     }
 
     @Override
