@@ -1,7 +1,12 @@
 package com.example.michailgromtsev.newsreader;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.TaskStackBuilder;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,40 +21,44 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 
 public class NewsDetailsActivity extends AppCompatActivity {
-    private ImageView image;
-    private TextView title;
-    private TextView date;
-    private TextView fullText;
-    private  RequestManager imageLoader;
+
+    private  static final String EXTRA_NEWS_ITEM = "exta:newsItem";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_details);
 
-        image = findViewById(R.id.iv_image);
-        title = findViewById(R.id.tv_title);
-        date = findViewById(R.id.tv_date);
-        fullText = findViewById(R.id.tv_full_text);
+        final NewsItem newsItem = (NewsItem) getIntent().getSerializableExtra(EXTRA_NEWS_ITEM);
 
-        RequestOptions imgeOptions = new RequestOptions()
-                .placeholder(R.drawable.ic_launcher_background)
-                .fallback(R.drawable.ic_launcher_background);
-              //  .centerCrop();
-        imageLoader = Glide.with(this).applyDefaultRequestOptions(imgeOptions);
+        final ActionBar ab = getSupportActionBar();
+        if (ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+            ab.setTitle(newsItem.getCategory().getName());
+        }
 
+       final ImageView imageView = findViewById(R.id.iv_image);;
+       final TextView titleView = findViewById(R.id.tv_title);
+       final TextView dateView = findViewById(R.id.tv_date);
+       final TextView fullTextView  = findViewById(R.id.tv_full_text);
 
-
-        NewsItem news = DataUtils.generateNews().get(0);
-
-        imageLoader.load(news.getImageUrl()).into(image);
-
-        title.setText(news.getTitle());
-        Format formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-        date.setText(formatter.format(news.getPublishDate()));
-        fullText.setText(news.getFullText());
-
-        setTitle(news.getCategory().getName());
+       Glide.with(this).load(newsItem.getImageUrl()).into(imageView);
+       titleView.setText(newsItem.getTitle());
+       fullTextView.setText(newsItem.getFullText());
+       dateView.setText(Utils.formateDateTime(this,newsItem.getPublishDate()));
 
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    public static void start(@NonNull Context context, @NonNull NewsItem newsItem) {
+        context.startActivity(new Intent(context, NewsDetailsActivity.class)
+                .putExtra(EXTRA_NEWS_ITEM, newsItem)
+        );
+    }
+
 }

@@ -1,20 +1,20 @@
-package com.example.michailgromtsev.newsreader.data;
+package com.example.michailgromtsev.newsreader;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.michailgromtsev.newsreader.R;
+import com.example.michailgromtsev.newsreader.data.NewsItem;
 
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapter.ViewHolder> {
 
     @NonNull
-    private final List<NewsItem> news;
+    private final List<NewsItem> items = new ArrayList<>();
     @NonNull
     private final LayoutInflater inflater;
     @NonNull
@@ -35,9 +35,9 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
     private final int TYPE_SIMPLE_NEWS_ITEM = 0;
     private final int TYPE_CRIMINAL_NEWS_ITEM = 1;
 
-    public NewsRecyclerAdapter(@NonNull Context context, @NonNull List<NewsItem> news,
+    public NewsRecyclerAdapter(@NonNull Context context,
                                @Nullable OnItemClickListener clickListener) {
-        this.news = news;
+
         this.inflater = LayoutInflater.from(context);
         this.clickListener = clickListener;
 
@@ -62,7 +62,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
     @Override
     public int getItemViewType(int position) {
-        if (news.get(position).getCategory().getName().equals("Criminal")) {
+        if (items.get(position).getCategory().getName().equals("Criminal")) {
             return TYPE_CRIMINAL_NEWS_ITEM;
         } else {
             return TYPE_SIMPLE_NEWS_ITEM;
@@ -71,16 +71,22 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.bind(news.get(position));
-    }
-
-    public interface OnItemClickListener {
-        void onItemClick(NewsItem news);
+        holder.bind(items.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return news.size();
+        return items.size();
+    }
+
+    public interface OnItemClickListener {
+        void onItemClick(@NonNull NewsItem newsItem);
+    }
+
+    public void replaceItems (@NonNull List<NewsItem> newsItems) {
+        items.clear();
+        items.addAll(newsItems);
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -97,7 +103,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsRecyclerAdapte
                 public void onClick(View view) {
                     int position = getAdapterPosition();
                     if (listener != null && position != RecyclerView.NO_POSITION) {
-                        listener.onItemClick(news.get(position));
+                        listener.onItemClick(items.get(position));
                     }
                 }
             });
