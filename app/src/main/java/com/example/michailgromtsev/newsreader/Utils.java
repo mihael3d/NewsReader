@@ -18,6 +18,11 @@ public class Utils {
                 FORMAT_ABBREV_RELATIVE
         );
     }
+
+    public static boolean isDebug() {
+        return BuildConfig.DEBUG;
+    }
+
     private Utils(){
         throw new AssertionError("No instanse");
     }

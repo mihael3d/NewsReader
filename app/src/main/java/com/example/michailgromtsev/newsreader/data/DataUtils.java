@@ -1,12 +1,21 @@
 package com.example.michailgromtsev.newsreader.data;
 
+import android.accounts.NetworkErrorException;
+import android.util.Log;
+
+import com.example.michailgromtsev.newsreader.BuildConfig;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import io.reactivex.Single;
+import io.reactivex.SingleEmitter;
+import io.reactivex.SingleOnSubscribe;
+
 public class DataUtils {
-    public static List<NewsItem> generateNews() {
+    public static List<NewsItem> generateNews() throws NetworkErrorException {
         final Category darwinAwards = new Category(1, "Drawing Awards");
         final Category criminal = new Category(1, "Criminal");
         final Category animals = new Category(1, "Animals");
@@ -136,5 +145,19 @@ public class DataUtils {
 
     private static Date createDate(int year, int month, int date, int hrs, int min) {
         return new GregorianCalendar(year, month-1, date,hrs, min).getTime();
+    }
+
+    public static Single<List<NewsItem>> observeNews(){
+        return Single.create(emitter-> {
+               try {
+                   List<NewsItem> newsItems = generateNews();
+                   emitter.onSuccess(newsItems);
+               } catch (NetworkErrorException ex) {
+                   if (!emitter.tryOnError(ex) && BuildConfig.DEBUG) {
+                       Log.e("DataUtils", "observeNews error handller caught an error", ex);
+                   }
+               }
+
+        });
     }
 }

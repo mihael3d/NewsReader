@@ -2,4 +2,5 @@
 <resources>
     <dimen name="card_elements_margins">10dp</dimen>
     <dimen name="default_size_padding">16dp</dimen>
+    <dimen name="spacing_micro">4dp</dimen>
 </resources>
