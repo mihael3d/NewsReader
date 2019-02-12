@@ -1,4 +1,4 @@
-package com.example.michailgromtsev.newsreader;
+package com.example.michailgromtsev.newsreader.news.adapter.recycler;
 
 import android.graphics.Rect;
 import android.view.View;

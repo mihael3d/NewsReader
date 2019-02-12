@@ -1,24 +1,20 @@
-package com.example.michailgromtsev.newsreader;
+package com.example.michailgromtsev.newsreader.details;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.TaskStackBuilder;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.michailgromtsev.newsreader.data.DataUtils;
-import com.example.michailgromtsev.newsreader.data.NewsItem;
-
-import java.text.Format;
-import java.text.SimpleDateFormat;
+import com.example.michailgromtsev.newsreader.R;
+import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
+import com.example.michailgromtsev.newsreader.utils.Utils;
 
 public class NewsDetailsActivity extends AppCompatActivity {
 
@@ -34,18 +30,22 @@ public class NewsDetailsActivity extends AppCompatActivity {
         final ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.setDisplayHomeAsUpEnabled(true);
-            ab.setTitle(newsItem.getCategory().getName());
+            ab.setTitle(newsItem.getTitle());
         }
 
-       final ImageView imageView = findViewById(R.id.iv_image);;
-       final TextView titleView = findViewById(R.id.tv_title);
-       final TextView dateView = findViewById(R.id.tv_date);
-       final TextView fullTextView  = findViewById(R.id.tv_full_text);
+//       final ImageView imageView = findViewById(R.id.iv_image);;
+//       final TextView titleView = findViewById(R.id.tv_title);
+//       final TextView dateView = findViewById(R.id.tv_date);
+       final WebView fultext = findViewById(R.id.wv_fultext);
+        fultext.loadUrl(newsItem.getUrl());
 
-       Glide.with(this).load(newsItem.getImageUrl()).into(imageView);
-       titleView.setText(newsItem.getTitle());
-       fullTextView.setText(newsItem.getFullText());
-       dateView.setText(Utils.formateDateTime(this,newsItem.getPublishDate()));
+//       Glide.with(this).load(newsItem.getImageUrl()).into(imageView);
+//       titleView.setText(newsItem.getTitle());
+      // fullTextView.setText(newsItem.getFullText());
+//       dateView.setText(Utils.formateDateTime(this,newsItem.getPublishDate()));
+
+
+
 
     }
 

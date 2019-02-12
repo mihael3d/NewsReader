@@ -1,10 +1,11 @@
-package com.example.michailgromtsev.newsreader.data;
+package com.example.michailgromtsev.newsreader.news.adapter.recycler;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class NewsItem implements Serializable {
     @NonNull
@@ -12,22 +13,31 @@ public class NewsItem implements Serializable {
     @NonNull
     private final String imageUrl;
     @NonNull
-    private final Category category;
+    private final String category;
     @NonNull
     private final Date publishDate;
     @NonNull
     private final String previewText;
     @NonNull
-    private final String fullText;
+    private final String url;
 
 
-    public NewsItem(String title, String imageUrl, Category category, Date publishDate, String previewText, String fullText) {
+    public static NewsItem create( @NonNull String title,
+                            @Nullable String imageUrl,
+                            @NonNull String category,
+                            @NonNull Date publishDate,
+                            @NonNull String previewText,
+                            @NonNull String url) {
+        return new NewsItem(title, imageUrl, category, publishDate, previewText, url);
+    }
+
+    private NewsItem(String title, String imageUrl, String category, Date publishDate, String previewText, String url) {
         this.title = title;
         this.imageUrl = imageUrl;
         this.category = category;
         this.publishDate = publishDate;
         this.previewText = previewText;
-        this.fullText = fullText;
+        this.url = url;
     }
 
     public String getTitle() {
@@ -38,7 +48,7 @@ public class NewsItem implements Serializable {
         return imageUrl;
     }
 
-    public Category getCategory() {
+    public String getCategory() {
         return category;
     }
 
@@ -50,8 +60,8 @@ public class NewsItem implements Serializable {
         return previewText;
     }
 
-    public String getFullText() {
-        return fullText;
+    public String getUrl() {
+        return url;
     }
 
     @Override
@@ -64,13 +74,13 @@ public class NewsItem implements Serializable {
                 Objects.equals(category, newsItem.category) &&
                 Objects.equals(publishDate, newsItem.publishDate) &&
                 Objects.equals(previewText, newsItem.previewText) &&
-                Objects.equals(fullText, newsItem.fullText);
+                Objects.equals(url, newsItem.url);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(title, imageUrl, category, publishDate, previewText, fullText);
+        return Objects.hash(title, imageUrl, category, publishDate, previewText, url);
     }
 
     @Override
@@ -81,7 +91,7 @@ public class NewsItem implements Serializable {
                 ", category=" + category +
                 ", publishDate=" + publishDate +
                 ", previewText='" + previewText + '\'' +
-                ", fullText='" + fullText + '\'' +
+                ", fullText='" + url + '\'' +
                 '}';
     }
 

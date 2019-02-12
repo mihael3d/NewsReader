@@ -1,7 +1,9 @@
-package com.example.michailgromtsev.newsreader;
+package com.example.michailgromtsev.newsreader.utils;
 
 import android.content.Context;
 import android.text.format.DateUtils;
+
+import com.example.michailgromtsev.newsreader.BuildConfig;
 
 import java.util.Date;
 
