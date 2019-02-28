@@ -3,6 +3,7 @@ package com.example.michailgromtsev.newsreader.news;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -15,7 +16,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.michailgromtsev.newsreader.data.database.AppDatabase;
+import com.example.michailgromtsev.newsreader.data.database.ConvectorFromNetvorkToDatabase;
+import com.example.michailgromtsev.newsreader.data.database.NewsEntity;
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
+import com.example.michailgromtsev.newsreader.data.network.models.dto.NewsDTO;
 import com.example.michailgromtsev.newsreader.details.NewsDetailsActivity;
 import com.example.michailgromtsev.newsreader.R;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
@@ -24,8 +29,11 @@ import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItemDeco
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsRecyclerAdapter;
 import com.example.michailgromtsev.newsreader.news.adapter.spinner.CategorySpinerAdapter;
 import com.example.michailgromtsev.newsreader.utils.Utils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,8 +51,6 @@ import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 public class NewsListActivity extends AppCompatActivity {
 
     private  static final int LAYOUT = R.layout.activity_news_list;
-    private static final String TAG = NewsListActivity.class.getSimpleName();
-    private int checkNewsCategoryIndex = -1;
 
     @Nullable
     private ProgressBar progress;
@@ -54,10 +60,13 @@ public class NewsListActivity extends AppCompatActivity {
     private Toolbar toolbar;
     @Nullable
     private Spinner spinnerCategories;
+    @Nullable
+    private FloatingActionButton floatingActionButton;
 
     private NewsRecyclerAdapter newsRecyclerAdapter;
     private CategorySpinerAdapter categoriesAdapter;
-//    private Button buttonSelectNewsCategory;
+    private  AppDatabase database;
+
 
     @NonNull
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -68,13 +77,13 @@ public class NewsListActivity extends AppCompatActivity {
         setContentView(LAYOUT);
         setupUi();
         setupUx();
-       // loadItems("arts");
+
     }
 
     private void setupUi() {
         findViews();
        setupToolbar();
-        //setupSpinner();
+
         setupSpiner();
         setupRecyclerViewAdapter();
 
@@ -106,34 +115,16 @@ public class NewsListActivity extends AppCompatActivity {
 
     private void setupUx() {
         newsRecyclerAdapter.setOnClickListner(newsItem -> NewsDetailsActivity.start(this,newsItem));
-        categoriesAdapter.setOnCategorySelectListner(category -> loadItems(category.serverValue()),spinnerCategories);
-//        buttonSelectNewsCategory.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showAlertDilog();
-//            }
-//        });
+        //categoriesAdapter.setOnCategorySelectListner(category -> loadItems(category.serverValue()),spinnerCategories);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String category = categoriesAdapter.getSelectedCategory().serverValue();
+                loadItems(category);
+            }
+        });
     }
 
-//private void showAlertDilog() {
-//    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//    final String[] mChooseCats = { "arts", "opinion", "world" };
-//
-//    builder.setTitle("Выберите любимое имя кота")
-//            .setSingleChoiceItems(mChooseCats,checkNewsCategoryIndex,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog,
-//                                            int item) {
-//                            checkNewsCategoryIndex = item;
-//                            loadItems(mChooseCats[item]);
-//                            dialog.cancel();
-//                        }
-//                    });
-//
-//    AlertDialog alert = builder.create();
-//    alert.show();
-//}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -143,15 +134,29 @@ public class NewsListActivity extends AppCompatActivity {
 
     private void loadItems(@NonNull String category) {
         shoProgress();
-       final Disposable disposable = RestApi.getInstance()
+        final Disposable disposable = RestApi.getInstance()
                 .topStories()
-               //.get("arts")
+
                 .get2(category)
-                .map(response->TopStoriesMapper.map(response.getNews()))
+                .map(response->response.getNews())
+               // .map(response->TopStoriesMapper.map(response.getNews()))
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateItems,this::handleError);
+                //.observeOn(Shedul)
+                .subscribe(this::saveLoadedData,this::handleError);
+               // .subscribe(this::updateItems,this::handleError);
        compositeDisposable.add(disposable);
+    }
+
+    private void saveLoadedData (List<NewsDTO> newsDTOS) {
+        database = AppDatabase.getInstance(this);
+//        ArrayList<NewsEntity> entities = new ArrayList<>();
+
+        for (NewsDTO newsDTO : newsDTOS) {
+            NewsEntity entity = ConvectorFromNetvorkToDatabase.toDatabase(newsDTO);
+//            entities.add(entity);
+            database.newsDao().insert(entity);
+        }
+
     }
 
     private void updateItems(List<NewsItem> newsItems) {
@@ -191,7 +196,8 @@ public class NewsListActivity extends AppCompatActivity {
         progress = findViewById(R.id.progres);
         recycler = findViewById(R.id.recycler);
         toolbar = findViewById(R.id.toolbar);
-        //buttonSelectNewsCategory = findViewById(R.id.bt_select_news_category);
+        floatingActionButton = findViewById(R.id.floatingActionButton);
+
         spinnerCategories = findViewById(R.id.spinner_categories);
     }
 }
