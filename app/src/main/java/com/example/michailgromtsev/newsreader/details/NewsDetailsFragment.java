@@ -1,64 +1,74 @@
 package com.example.michailgromtsev.newsreader.details;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.example.michailgromtsev.newsreader.R;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
-import com.example.michailgromtsev.newsreader.utils.Utils;
 
-public class NewsDetailsActivity extends AppCompatActivity {
+public class NewsDetailsFragment extends Fragment {
 
+    private  static final int LAYOUT = R.layout.fragment_news_details;
     private  static final String EXTRA_NEWS_ITEM = "exta:newsItem";
+    private static final String DESCRIBABLE_KEY_NEWS_ITEM = "newsItem";
+    private NewsItem newsItem;
+    private WebView fultext;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_news_details);
-
-        final NewsItem newsItem = (NewsItem) getIntent().getSerializableExtra(EXTRA_NEWS_ITEM);
-
-        final ActionBar ab = getSupportActionBar();
-        if (ab != null) {
-            ab.setDisplayHomeAsUpEnabled(true);
-            ab.setTitle(newsItem.getTitle());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(LAYOUT,container,false);
+        fultext = view.findViewById(R.id.wv_fultext);
+        Bundle arguments = getArguments();
+        if (arguments != null && arguments.containsKey(DESCRIBABLE_KEY_NEWS_ITEM)) {
+            newsItem = (NewsItem) arguments.getSerializable(DESCRIBABLE_KEY_NEWS_ITEM);
         }
-
-//       final ImageView imageView = findViewById(R.id.iv_image);;
-//       final TextView titleView = findViewById(R.id.tv_title);
-//       final TextView dateView = findViewById(R.id.tv_date);
-       final WebView fultext = findViewById(R.id.wv_fultext);
         fultext.loadUrl(newsItem.getUrl());
-
-//       Glide.with(this).load(newsItem.getImageUrl()).into(imageView);
-//       titleView.setText(newsItem.getTitle());
-      // fullTextView.setText(newsItem.getFullText());
-//       dateView.setText(Utils.formateDateTime(this,newsItem.getPublishDate()));
-
-
-
-
+        return view;
     }
 
     @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+       // final NewsItem newsItem = (NewsItem) getIntent().getSerializableExtra(EXTRA_NEWS_ITEM);
+
+//        final ActionBar ab = getSupportActionBar();
+//        if (ab != null) {
+//            ab.setDisplayHomeAsUpEnabled(true);
+//            ab.setTitle(newsItem.getTitle());
+//        }
+
+
+
+       //fultext.loadUrl(newsItem.getUrl());
+
+    }
+
+    public static NewsDetailsFragment newIstance(@NonNull NewsItem newsItem) {
+        NewsDetailsFragment fragment = new NewsDetailsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(DESCRIBABLE_KEY_NEWS_ITEM,newsItem);
+        fragment.setArguments(bundle);
+
+        return fragment;
     }
 
     public static void start(@NonNull Context context, @NonNull NewsItem newsItem) {
-        context.startActivity(new Intent(context, NewsDetailsActivity.class)
+        context.startActivity(new Intent(context, NewsDetailsFragment.class)
                 .putExtra(EXTRA_NEWS_ITEM, newsItem)
         );
     }
-
 }

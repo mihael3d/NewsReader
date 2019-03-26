@@ -1,6 +1,7 @@
 package com.example.michailgromtsev.newsreader.news;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,10 +36,10 @@ import io.reactivex.schedulers.Schedulers;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
-public class NewsListFragments extends Fragment {
+public class NewsListFragment extends Fragment {
 
     private  static final int LAYOUT = R.layout.fragment_news_list;
-    private static final String TAG = NewsListFragments.class.getSimpleName();
+    private static final String TAG = NewsListFragment.class.getSimpleName();
     private int checkNewsCategoryIndex = -1;
 
     @Nullable
@@ -50,6 +52,8 @@ public class NewsListFragments extends Fragment {
     private NewsRecyclerAdapter newsRecyclerAdapter;
     private CategorySpinerAdapter categoriesAdapter;
 
+    private NewsListFragmentListener listner;
+
     @NonNull
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -59,14 +63,29 @@ public class NewsListFragments extends Fragment {
 
         View view = inflater.inflate(LAYOUT, container, false);
         setupUi(view);
-
+        setupUx();
         return view;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupUx();
+
+    }
+
+     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (getActivity() instanceof NewsListFragmentListener ) {
+            listner = (NewsListFragmentListener) getActivity();
+        }
+
+    }
+
+       @Override
+    public void onDetach() {
+        listner = null;
+        super.onDetach();
     }
 
     private void setupUi(View view) {
@@ -95,8 +114,13 @@ public class NewsListFragments extends Fragment {
     }
 
     private void setupUx() {
-        newsRecyclerAdapter.setOnClickListner(newsItem -> NewsDetailsFragment.start(getActivity(),newsItem));
-        categoriesAdapter.setOnCategorySelectListner(category -> loadItems(category.serverValue()),spinnerCategories);
+
+
+      //newsRecyclerAdapter.setOnClickListner(newsItem -> listner.onNextMessageClicked(newsItem));
+
+
+      categoriesAdapter.setOnCategorySelectListner(category -> {loadItems(category.serverValue());
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(category.displayValue());},spinnerCategories);
     }
 
     private void loadItems(@NonNull String category) {
@@ -149,4 +173,9 @@ public class NewsListFragments extends Fragment {
         recycler = view.findViewById(R.id.recycler);
         spinnerCategories = view.findViewById(R.id.spinner_categories);
     }
+
+    public interface NewsListFragmentListener {
+        void onNextMessageClicked(NewsItem newsItem);
+    }
+
 }
