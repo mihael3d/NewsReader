@@ -1,22 +1,16 @@
 package com.example.michailgromtsev.newsreader.news;
 
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
-import com.example.michailgromtsev.newsreader.details.NewsDetailsActivity;
+import com.example.michailgromtsev.newsreader.details.NewsDetailsFragment;
 import com.example.michailgromtsev.newsreader.R;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
 import com.example.michailgromtsev.newsreader.data.network.RestApi;
@@ -29,7 +23,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,10 +34,10 @@ import io.reactivex.schedulers.Schedulers;
 
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
-public class NewsListActivity extends AppCompatActivity {
+public class NewsListFragments extends Fragment {
 
-    private  static final int LAYOUT = R.layout.activity_news_list;
-    private static final String TAG = NewsListActivity.class.getSimpleName();
+    private  static final int LAYOUT = R.layout.fragment_news_list;
+    private static final String TAG = NewsListFragments.class.getSimpleName();
     private int checkNewsCategoryIndex = -1;
 
     @Nullable
@@ -51,101 +45,64 @@ public class NewsListActivity extends AppCompatActivity {
     @Nullable
     private RecyclerView recycler;
     @Nullable
-    private Toolbar toolbar;
-    @Nullable
     private Spinner spinnerCategories;
 
     private NewsRecyclerAdapter newsRecyclerAdapter;
     private CategorySpinerAdapter categoriesAdapter;
-//    private Button buttonSelectNewsCategory;
 
     @NonNull
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(LAYOUT);
-        setupUi();
-        setupUx();
-       // loadItems("arts");
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View view = inflater.inflate(LAYOUT, container, false);
+        setupUi(view);
+
+        return view;
     }
 
-    private void setupUi() {
-        findViews();
-       setupToolbar();
-        //setupSpinner();
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setupUx();
+    }
+
+    private void setupUi(View view) {
+        findViews(view);
         setupSpiner();
         setupRecyclerViewAdapter();
 
     }
 
-    private void setupToolbar() {
-     setSupportActionBar(toolbar);
-     getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-    }
-
     private void setupSpiner() {
         final NewsCategory[] categories = NewsCategory.values();
-        categoriesAdapter = CategorySpinerAdapter.createDefault(this,categories);
+        categoriesAdapter = CategorySpinerAdapter.createDefault(getActivity(),categories);
         spinnerCategories.setAdapter(categoriesAdapter);
     }
 
     private void setupRecyclerViewAdapter(){
-        newsRecyclerAdapter = new NewsRecyclerAdapter(this);
+        newsRecyclerAdapter = new NewsRecyclerAdapter(getActivity());
         recycler.setAdapter(newsRecyclerAdapter);
         recycler.addItemDecoration(new NewsItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_micro)));
         if(getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
             final int columeCounts = getResources().getInteger(R.integer.landscape_news_colums_count);
-            recycler.setLayoutManager(new GridLayoutManager(this,columeCounts));
+            recycler.setLayoutManager(new GridLayoutManager(getActivity(),columeCounts));
         } else {
-            recycler.setLayoutManager(new LinearLayoutManager(this));
+            recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         }
     }
 
     private void setupUx() {
-        newsRecyclerAdapter.setOnClickListner(newsItem -> NewsDetailsActivity.start(this,newsItem));
+        newsRecyclerAdapter.setOnClickListner(newsItem -> NewsDetailsFragment.start(getActivity(),newsItem));
         categoriesAdapter.setOnCategorySelectListner(category -> loadItems(category.serverValue()),spinnerCategories);
-//        buttonSelectNewsCategory.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                showAlertDilog();
-//            }
-//        });
-    }
-
-//private void showAlertDilog() {
-//    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//    final String[] mChooseCats = { "arts", "opinion", "world" };
-//
-//    builder.setTitle("Выберите любимое имя кота")
-//            .setSingleChoiceItems(mChooseCats,checkNewsCategoryIndex,
-//                    new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog,
-//                                            int item) {
-//                            checkNewsCategoryIndex = item;
-//                            loadItems(mChooseCats[item]);
-//                            dialog.cancel();
-//                        }
-//                    });
-//
-//    AlertDialog alert = builder.create();
-//    alert.show();
-//}
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_option, menu);
-        return true;
     }
 
     private void loadItems(@NonNull String category) {
         shoProgress();
        final Disposable disposable = RestApi.getInstance()
                 .topStories()
-               //.get("arts")
                 .get2(category)
                 .map(response->TopStoriesMapper.map(response.getNews()))
                 .subscribeOn(Schedulers.io())
@@ -169,7 +126,7 @@ public class NewsListActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         compositeDisposable.clear();
     }
@@ -180,18 +137,16 @@ public class NewsListActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         newsRecyclerAdapter = null;
         recycler = null;
         progress = null;
     }
 
-    private void findViews() {
-        progress = findViewById(R.id.progres);
-        recycler = findViewById(R.id.recycler);
-        toolbar = findViewById(R.id.toolbar);
-        //buttonSelectNewsCategory = findViewById(R.id.bt_select_news_category);
-        spinnerCategories = findViewById(R.id.spinner_categories);
+    private void findViews(View view) {
+        progress = view.findViewById(R.id.progres);
+        recycler = view.findViewById(R.id.recycler);
+        spinnerCategories = view.findViewById(R.id.spinner_categories);
     }
 }
