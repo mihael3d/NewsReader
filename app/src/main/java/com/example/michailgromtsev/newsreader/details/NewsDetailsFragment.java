@@ -33,6 +33,7 @@ public class NewsDetailsFragment extends Fragment {
         Bundle arguments = getArguments();
         if (arguments != null && arguments.containsKey(DESCRIBABLE_KEY_NEWS_ITEM)) {
             newsItem = (NewsItem) arguments.getSerializable(DESCRIBABLE_KEY_NEWS_ITEM);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(newsItem.getTitle());
         }
         fultext.loadUrl(newsItem.getUrl());
         return view;
@@ -41,20 +42,6 @@ public class NewsDetailsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-       // final NewsItem newsItem = (NewsItem) getIntent().getSerializableExtra(EXTRA_NEWS_ITEM);
-
-//        final ActionBar ab = getSupportActionBar();
-//        if (ab != null) {
-//            ab.setDisplayHomeAsUpEnabled(true);
-//            ab.setTitle(newsItem.getTitle());
-//        }
-
-
-
-       //fultext.loadUrl(newsItem.getUrl());
-
     }
 
     public static NewsDetailsFragment newIstance(@NonNull NewsItem newsItem) {
@@ -66,9 +53,4 @@ public class NewsDetailsFragment extends Fragment {
         return fragment;
     }
 
-    public static void start(@NonNull Context context, @NonNull NewsItem newsItem) {
-        context.startActivity(new Intent(context, NewsDetailsFragment.class)
-                .putExtra(EXTRA_NEWS_ITEM, newsItem)
-        );
-    }
 }

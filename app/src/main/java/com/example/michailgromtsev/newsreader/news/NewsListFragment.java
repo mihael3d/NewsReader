@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
+import com.example.michailgromtsev.newsreader.MainActivity;
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
 import com.example.michailgromtsev.newsreader.details.NewsDetailsFragment;
 import com.example.michailgromtsev.newsreader.R;
@@ -40,6 +41,7 @@ public class NewsListFragment extends Fragment {
 
     private  static final int LAYOUT = R.layout.fragment_news_list;
     private static final String TAG = NewsListFragment.class.getSimpleName();
+
     private int checkNewsCategoryIndex = -1;
 
     @Nullable
@@ -57,6 +59,8 @@ public class NewsListFragment extends Fragment {
     @NonNull
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -64,13 +68,8 @@ public class NewsListFragment extends Fragment {
         View view = inflater.inflate(LAYOUT, container, false);
         setupUi(view);
         setupUx();
+
         return view;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
     }
 
      @Override
@@ -79,10 +78,16 @@ public class NewsListFragment extends Fragment {
         if (getActivity() instanceof NewsListFragmentListener ) {
             listner = (NewsListFragmentListener) getActivity();
         }
-
     }
 
-       @Override
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(categoriesAdapter.getSelectedCategory().displayValue());
+    }
+
+    @Override
     public void onDetach() {
         listner = null;
         super.onDetach();
@@ -92,7 +97,6 @@ public class NewsListFragment extends Fragment {
         findViews(view);
         setupSpiner();
         setupRecyclerViewAdapter();
-
     }
 
     private void setupSpiner() {
@@ -105,22 +109,22 @@ public class NewsListFragment extends Fragment {
         newsRecyclerAdapter = new NewsRecyclerAdapter(getActivity());
         recycler.setAdapter(newsRecyclerAdapter);
         recycler.addItemDecoration(new NewsItemDecoration(getResources().getDimensionPixelOffset(R.dimen.spacing_micro)));
-        if(getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
-            final int columeCounts = getResources().getInteger(R.integer.landscape_news_colums_count);
-            recycler.setLayoutManager(new GridLayoutManager(getActivity(),columeCounts));
-        } else {
-            recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        }
+
+
+//        if(getResources().getConfiguration().orientation == ORIENTATION_LANDSCAPE) {
+//            final int columeCounts = getResources().getInteger(R.integer.landscape_news_colums_count);
+//            recycler.setLayoutManager(new GridLayoutManager(getActivity(),columeCounts));
+//        } else {
+//            recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+//        }
+        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
     private void setupUx() {
-
-
-      //newsRecyclerAdapter.setOnClickListner(newsItem -> listner.onNextMessageClicked(newsItem));
-
-
-      categoriesAdapter.setOnCategorySelectListner(category -> {loadItems(category.serverValue());
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(category.displayValue());},spinnerCategories);
+        newsRecyclerAdapter.setOnClickListner(newsItem -> listner.onNextMessageClicked(newsItem));
+        categoriesAdapter.setOnCategorySelectListner(category -> {loadItems(category.serverValue());
+          ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(category.displayValue());
+            },spinnerCategories);
     }
 
     private void loadItems(@NonNull String category) {

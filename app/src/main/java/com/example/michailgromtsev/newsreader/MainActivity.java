@@ -3,6 +3,7 @@ package com.example.michailgromtsev.newsreader;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -16,24 +17,37 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
     private Toolbar toolbar;
     private final String TAG_NEWS_LIST_FRAGMENT = "newsListFragment";
     private final String TAG_DITALE_NEWS_FRAGMENT_ = "newsDetailFragment";
+    private final String TAD_TRANSACTION_DITALE_NEWS = "newsDetailTransaction";
+
+    private boolean isTwoPanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         toolbar = findViewById(R.id.toolbar);
         setupToolbar();
-        setupUx();
-
+        isTwoPanel = findViewById(R.id.frame_ditail) != null;
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frame_list,new NewsListFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
-    private void setupUx() {
-        NewsListFragment newsListFragment = new NewsListFragment();
+    @Override
+    public void onNextMessageClicked(NewsItem newsItem) {
+        NewsDetailsFragment newsDetailsFragment = NewsDetailsFragment.newIstance(newsItem);
+        int frameId = isTwoPanel?R.id.frame_ditail:R.id.frame_list;
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.frame_list,newsListFragment,TAG_NEWS_LIST_FRAGMENT)
+                .addToBackStack(TAD_TRANSACTION_DITALE_NEWS)
+                //  .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .setCustomAnimations(R.animator.slide_in_left, R.animator.slide_in_right)
+                .replace(frameId,newsDetailsFragment,TAG_DITALE_NEWS_FRAGMENT_)
                 .commit();
     }
 
@@ -46,9 +60,9 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
      private void setupToolbar() {
      setSupportActionBar(toolbar);
      getSupportActionBar().setDisplayShowTitleEnabled(true);
-         getSupportActionBar().setTitle("222222");
-     toolbar.setTitle("bla bla bla");
 
+         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+         getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
     @Override
@@ -57,13 +71,12 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
         return true;
     }
 
-    @Override
-    public void onNextMessageClicked(NewsItem newsItem) {
-        NewsDetailsFragment newsDetailsFragment = NewsDetailsFragment.newIstance(newsItem);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.frame_list,newsDetailsFragment,TAG_DITALE_NEWS_FRAGMENT_)
-                .commit();
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() <= 1) {
+            finish();
+        }
+        super.onBackPressed();
     }
 }
