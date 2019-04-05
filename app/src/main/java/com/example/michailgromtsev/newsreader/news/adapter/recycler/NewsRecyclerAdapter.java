@@ -60,6 +60,7 @@ public class NewsRecyclerAdapter extends RecyclerView.Adapter<NewsViewHolder> {
 
     public void replaceItems (List<NewsItem> newsItems) {
         items.clear();
+        items.clear();
         items.addAll(newsItems);
         notifyDataSetChanged();
     }

@@ -10,9 +10,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
-import com.example.michailgromtsev.newsreader.MainActivity;
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
-import com.example.michailgromtsev.newsreader.details.NewsDetailsFragment;
+import com.example.michailgromtsev.newsreader.database.AppDatabase;
+import com.example.michailgromtsev.newsreader.database.NewsConverter;
+import com.example.michailgromtsev.newsreader.database.NewsEntity;
 import com.example.michailgromtsev.newsreader.R;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
 import com.example.michailgromtsev.newsreader.data.network.RestApi;
@@ -20,6 +21,7 @@ import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItemDeco
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsRecyclerAdapter;
 import com.example.michailgromtsev.newsreader.news.adapter.spinner.CategorySpinerAdapter;
 import com.example.michailgromtsev.newsreader.utils.Utils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -27,15 +29,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 
 public class NewsListFragment extends Fragment {
 
@@ -50,12 +50,14 @@ public class NewsListFragment extends Fragment {
     private RecyclerView recycler;
     @Nullable
     private Spinner spinnerCategories;
+    @Nullable
+    private FloatingActionButton floatingActionButton;
 
     private NewsRecyclerAdapter newsRecyclerAdapter;
     private CategorySpinerAdapter categoriesAdapter;
 
     private NewsListFragmentListener listner;
-
+    private Disposable disposable;
     @NonNull
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -125,6 +127,10 @@ public class NewsListFragment extends Fragment {
         categoriesAdapter.setOnCategorySelectListner(category -> {loadItems(category.serverValue());
           ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(category.displayValue());
             },spinnerCategories);
+        floatingActionButton.setOnClickListener(view -> loadNewsItemsFromRoom(
+              //  ((CategorySpinerAdapter)spinnerCategories.getAdapter()).getSelectedCategory().serverValue()
+                )
+        );
     }
 
     private void loadItems(@NonNull String category) {
@@ -139,10 +145,15 @@ public class NewsListFragment extends Fragment {
        compositeDisposable.add(disposable);
     }
 
+
     private void updateItems(List<NewsItem> newsItems) {
+      saveNewsItemsToRoom(newsItems);
         if (newsRecyclerAdapter != null) newsRecyclerAdapter.replaceItems(newsItems);
+
         progress.setVisibility(View.GONE);
         recycler.setVisibility(View.VISIBLE);
+        recycler.setEnabled(true);
+
     }
 
     private void handleError(Throwable th) {
@@ -153,6 +164,30 @@ public class NewsListFragment extends Fragment {
         recycler.setVisibility(View.GONE);
     }
 
+    private void saveNewsItemsToRoom(List<NewsItem> newsItems) {
+        NewsConverter newsConverter = new NewsConverter(getContext());
+        newsConverter.toDatabase(newsItems);
+    }
+
+    private void loadNewsItemsFromRoom(
+            //String category
+    ) {
+        AppDatabase db = AppDatabase.getAppDatavese(getContext());
+        Observable<List<NewsEntity>> getAllNewsEntities = db.newsDao().getAll();
+                //.getAllByCategory(category);
+         disposable =  getAllNewsEntities
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::loadItems,this::handleError);
+        //compositeDisposable.add(disposable);
+    }
+
+    private void loadItems(List<NewsEntity> newsEntetis) {
+        List<NewsItem> newsItems = NewsConverter.fromDatabase(newsEntetis);
+        if (newsRecyclerAdapter != null) newsRecyclerAdapter.replaceItems(newsItems);
+        disposable.dispose();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
@@ -161,8 +196,12 @@ public class NewsListFragment extends Fragment {
 
     private void shoProgress() {
         progress.setVisibility(View.VISIBLE);
-        recycler.setVisibility(View.GONE);
+      //  recycler.setVisibility(View.GONE);
+        recycler.setEnabled(false);
+
     }
+
+
 
     @Override
     public void onDestroy() {
@@ -176,6 +215,7 @@ public class NewsListFragment extends Fragment {
         progress = view.findViewById(R.id.progres);
         recycler = view.findViewById(R.id.recycler);
         spinnerCategories = view.findViewById(R.id.spinner_categories);
+        floatingActionButton = view.findViewById(R.id.floatingActionButton);
     }
 
     public interface NewsListFragmentListener {
