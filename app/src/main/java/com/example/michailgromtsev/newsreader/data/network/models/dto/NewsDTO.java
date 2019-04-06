@@ -8,6 +8,9 @@ import java.util.List;
 
 public class NewsDTO {
 
+    @SerializedName("section")
+    private String section;
+
     @SerializedName("subsection")
     private String subsection;
 
@@ -26,9 +29,13 @@ public class NewsDTO {
     @SerializedName("url")
     private String url;
 
-    public String getSubsection() {
-        return subsection;
+    public String getSection() {
+        return section;
     }
+
+    public String getSubsection() {
+            return subsection;
+        }
 
     public String getTitle() {
         return title;

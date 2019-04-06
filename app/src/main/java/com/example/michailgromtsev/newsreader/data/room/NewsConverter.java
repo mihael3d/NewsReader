@@ -1,17 +1,12 @@
-package com.example.michailgromtsev.newsreader.database;
+package com.example.michailgromtsev.newsreader.data.room;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 
 public class NewsConverter {
 
@@ -27,6 +22,7 @@ public class NewsConverter {
 
         for(NewsItem item: newsItems) {
 
+            String section = item.getSection();
             String title = item.getTitle();
             String imageUrl = item.getImageUrl();
             String category = item.getCategory();
@@ -35,7 +31,7 @@ public class NewsConverter {
             String url = item.getUrl();
             String id = title.concat(url);
 
-            NewsEntity newsEntity = new NewsEntity(id,title,imageUrl,category,publishDate,previewText,url);
+            NewsEntity newsEntity = new NewsEntity(id,title,imageUrl,category,publishDate,previewText,url,section);
             newsEntitiesList.add(newsEntity);
         }
        NewsEntity[] entities =  newsEntitiesList.toArray(new NewsEntity[newsEntitiesList.size()]);
@@ -53,6 +49,7 @@ public class NewsConverter {
         List<NewsItem> newsItemList = new ArrayList<>(newsEntities.size());
 
         for (NewsEntity entity : newsEntities) {
+            String section = entity.getSection();
             String title = entity.getTitle();
             String imageUrl = entity.getImageUrl();
             String category = entity.getCategory();
@@ -61,7 +58,7 @@ public class NewsConverter {
             String previewText = entity.getPreviewText();
             String url = entity.getUrl();
 
-            NewsItem newsItem = NewsItem.create(title,imageUrl,category,publishDate,previewText,url);
+            NewsItem newsItem = NewsItem.create(section,title,imageUrl,category,publishDate,previewText,url);
             newsItemList.add(newsItem);
         }
         return newsItemList;

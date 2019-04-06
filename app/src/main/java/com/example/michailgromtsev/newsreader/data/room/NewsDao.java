@@ -1,4 +1,4 @@
-package com.example.michailgromtsev.newsreader.database;
+package com.example.michailgromtsev.newsreader.data.room;
 
 import java.util.List;
 
@@ -15,8 +15,8 @@ public interface NewsDao {
     @Query("SELECT * FROM news ORDER BY publishDate DESC")
     Observable<List<NewsEntity>> getAll();
 
-    @Query("SELECT * FROM news WHERE id = :category ORDER BY publishDate DESC")
-    Observable<List<NewsEntity>> getAllByCategory(String category);
+    @Query("SELECT * FROM news WHERE section = :section ORDER BY publishDate DESC")
+    Observable<List<NewsEntity>> getAllBySection(String section);
 
     @Query("SELECT * FROM news WHERE id = :id")
     NewsEntity getNewsById(int id);

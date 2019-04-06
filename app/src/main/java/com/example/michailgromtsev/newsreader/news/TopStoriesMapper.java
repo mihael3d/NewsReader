@@ -26,6 +26,7 @@ public class TopStoriesMapper {
     }
 
     private static NewsItem mapItem(@NonNull NewsDTO dto) {
+        final String section = dto.getSection();
         final String title = dto.getTitle();
         final List<MultimediaDTO> multimedia = dto.getMultimedia();
 
@@ -36,7 +37,7 @@ public class TopStoriesMapper {
         final String previewText = dto.getAbstractDescription();
         final String url = dto.getUrl();
 
-        return NewsItem.create(title,imageUrl,catrgory,date,previewText,url);
+        return NewsItem.create(section,title,imageUrl,catrgory,date,previewText,url);
 
     }
 

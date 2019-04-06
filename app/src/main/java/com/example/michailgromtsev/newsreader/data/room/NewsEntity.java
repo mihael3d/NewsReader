@@ -1,4 +1,4 @@
-package com.example.michailgromtsev.newsreader.database;
+package com.example.michailgromtsev.newsreader.data.room;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -15,13 +15,17 @@ public class NewsEntity {
 
     @Ignore
     public NewsEntity(@NonNull String id,
+
                       String title,
                       String imageUrl,
                       String category,
                       long publishDate,
                       String previewText,
-                      String url) {
+                      String url,
+                      String section
+    ) {
         this.id =id;
+        this.section = section;
         this.title = title;
         this.imageUrl = imageUrl;
         this.category = category;
@@ -53,6 +57,9 @@ public class NewsEntity {
     @ColumnInfo(name = "url")
     private String url;
 
+    @ColumnInfo(name = "section")
+    private String section;
+
 
     public String getId() {
         return id;
@@ -60,6 +67,14 @@ public class NewsEntity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 
     public String getTitle() {

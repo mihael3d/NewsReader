@@ -11,9 +11,9 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
-import com.example.michailgromtsev.newsreader.database.AppDatabase;
-import com.example.michailgromtsev.newsreader.database.NewsConverter;
-import com.example.michailgromtsev.newsreader.database.NewsEntity;
+import com.example.michailgromtsev.newsreader.data.room.AppDatabase;
+import com.example.michailgromtsev.newsreader.data.room.NewsConverter;
+import com.example.michailgromtsev.newsreader.data.room.NewsEntity;
 import com.example.michailgromtsev.newsreader.R;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
 import com.example.michailgromtsev.newsreader.data.network.RestApi;
@@ -127,9 +127,9 @@ public class NewsListFragment extends Fragment {
         categoriesAdapter.setOnCategorySelectListner(category -> {loadItems(category.serverValue());
           ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(category.displayValue());
             },spinnerCategories);
-        floatingActionButton.setOnClickListener(view -> loadNewsItemsFromRoom(
-              //  ((CategorySpinerAdapter)spinnerCategories.getAdapter()).getSelectedCategory().serverValue()
-                )
+        floatingActionButton.setOnClickListener(view -> loadNewsItemsFromRoom( getString(
+               ((CategorySpinerAdapter)spinnerCategories.getAdapter()).getSelectedCategory().displayValue()
+                ))
         );
     }
 
@@ -169,12 +169,9 @@ public class NewsListFragment extends Fragment {
         newsConverter.toDatabase(newsItems);
     }
 
-    private void loadNewsItemsFromRoom(
-            //String category
-    ) {
+    private void loadNewsItemsFromRoom(            String selection    ) {
         AppDatabase db = AppDatabase.getAppDatavese(getContext());
-        Observable<List<NewsEntity>> getAllNewsEntities = db.newsDao().getAll();
-                //.getAllByCategory(category);
+        Observable<List<NewsEntity>> getAllNewsEntities = db.newsDao().getAllBySection(selection);
          disposable =  getAllNewsEntities
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -186,6 +183,8 @@ public class NewsListFragment extends Fragment {
         List<NewsItem> newsItems = NewsConverter.fromDatabase(newsEntetis);
         if (newsRecyclerAdapter != null) newsRecyclerAdapter.replaceItems(newsItems);
         disposable.dispose();
+        recycler.setVisibility(View.VISIBLE);
+
     }
 
     @Override

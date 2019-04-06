@@ -9,6 +9,8 @@ import androidx.annotation.Nullable;
 
 public class NewsItem implements Serializable {
     @NonNull
+    private final String section;
+    @NonNull
     private final String title;
     @NonNull
     private final String imageUrl;
@@ -22,22 +24,28 @@ public class NewsItem implements Serializable {
     private final String url;
 
 
-    public static NewsItem create( @NonNull String title,
+    public static NewsItem create( @NonNull String section,
+                            @NonNull String title,
                             @Nullable String imageUrl,
                             @NonNull String category,
                             @NonNull Date publishDate,
                             @NonNull String previewText,
                             @NonNull String url) {
-        return new NewsItem(title, imageUrl, category, publishDate, previewText, url);
+        return new NewsItem(section, title, imageUrl, category, publishDate, previewText, url);
     }
 
-    private NewsItem(String title, String imageUrl, String category, Date publishDate, String previewText, String url) {
+    private NewsItem(String section,String title, String imageUrl, String category, Date publishDate, String previewText, String url) {
+        this.section = section;
         this.title = title;
         this.imageUrl = imageUrl;
         this.category = category;
         this.publishDate = publishDate;
         this.previewText = previewText;
         this.url = url;
+    }
+
+    public  String getSection() {
+        return  section;
     }
 
     public String getTitle() {
@@ -69,7 +77,8 @@ public class NewsItem implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NewsItem newsItem = (NewsItem) o;
-        return Objects.equals(title, newsItem.title) &&
+        return  Objects.equals(section, newsItem.section) &&
+                Objects.equals(title, newsItem.title) &&
                 Objects.equals(imageUrl, newsItem.imageUrl) &&
                 Objects.equals(category, newsItem.category) &&
                 Objects.equals(publishDate, newsItem.publishDate) &&
@@ -80,12 +89,13 @@ public class NewsItem implements Serializable {
     @Override
     public int hashCode() {
 
-        return Objects.hash(title, imageUrl, category, publishDate, previewText, url);
+        return Objects.hash(section, title, imageUrl, category, publishDate, previewText, url);
     }
 
     @Override
     public String toString() {
         return "NewsItem{" +
+                "section='" + section + '\'' +
                 "title='" + title + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
                 ", category=" + category +

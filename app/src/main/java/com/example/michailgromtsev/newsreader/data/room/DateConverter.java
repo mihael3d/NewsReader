@@ -1,4 +1,4 @@
-package com.example.michailgromtsev.newsreader.database;
+package com.example.michailgromtsev.newsreader.data.room;
 
 import java.util.Date;
 
