@@ -2,6 +2,8 @@ package com.example.michailgromtsev.newsreader.news;
 
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 
+import com.example.michailgromtsev.newsreader.Background.ServiceNewsDownloading;
 import com.example.michailgromtsev.newsreader.data.network.models.NewsCategory;
 import com.example.michailgromtsev.newsreader.data.room.AppDatabase;
 import com.example.michailgromtsev.newsreader.data.room.NewsConverter;
@@ -131,8 +134,18 @@ public class NewsListFragment extends Fragment {
                ((CategorySpinerAdapter)spinnerCategories.getAdapter()).getSelectedCategory().displayValue()
                 ))
         );
+        startNewsDownloadingServise();
     }
 
+    private void startNewsDownloadingServise() {
+        Intent intent = new Intent(getActivity(), ServiceNewsDownloading.class);
+
+        if (Build.VERSION.SDK_INT >=  Build.VERSION_CODES.O) {
+            getActivity().startForegroundService(intent);
+        } else {
+            getActivity().startService(intent);
+        }
+    }
     private void loadItems(@NonNull String category) {
         shoProgress();
        final Disposable disposable = RestApi.getInstance()
@@ -169,7 +182,7 @@ public class NewsListFragment extends Fragment {
         newsConverter.toDatabase(newsItems);
     }
 
-    private void loadNewsItemsFromRoom(            String selection    ) {
+    private void loadNewsItemsFromRoom(String selection) {
         AppDatabase db = AppDatabase.getAppDatavese(getContext());
         Observable<List<NewsEntity>> getAllNewsEntities = db.newsDao().getAllBySection(selection);
          disposable =  getAllNewsEntities

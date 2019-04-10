@@ -1,10 +1,11 @@
 package com.example.michailgromtsev.newsreader.Background;
 
-import java.util.Observable;
+import io.reactivex.Observable;
 
 public class DownloadingNews {
 
-    public void updateNews() {
-
-    }
+//    public Observable<> updateNews() {
+////
+////return null;
+////    }
 }

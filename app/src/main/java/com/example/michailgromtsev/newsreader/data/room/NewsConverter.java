@@ -43,9 +43,6 @@ public class NewsConverter {
 
 
     public static List<NewsItem> fromDatabase(List<NewsEntity> newsEntities){
-
-
-
         List<NewsItem> newsItemList = new ArrayList<>(newsEntities.size());
 
         for (NewsEntity entity : newsEntities) {

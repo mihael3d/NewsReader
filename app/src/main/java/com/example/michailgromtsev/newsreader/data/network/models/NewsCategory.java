@@ -34,7 +34,7 @@ public enum NewsCategory {
 
     final String serverValue;
     final int displayResId;
-
+//TODO add field  equal "section" for each category
     NewsCategory(@NonNull String serverValue,
                  @StringRes int displayResId) {
         this.displayResId = displayResId;
