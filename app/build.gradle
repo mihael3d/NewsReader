@@ -57,6 +57,14 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     testImplementation "androidx.room:room-testing:$room_version"
 
+  //  implementation 'com.arello-mobile:moxy:1.5.5'
+    //annotationProcessor 'com.arello-mobile:moxy-compiler:1.5.5'
+    //annotationProcessor -- Because moxy will generate code in the compile time. Don’t think about it now!
 
+    //For app-compat users
+   // implementation 'com.arello-mobile:moxy-app-compat:1.5.5'
 
+    implementation 'com.arello-mobile:moxy:1.4.5'
+    annotationProcessor 'com.arello-mobile:moxy-compiler:1.4.5'
+    implementation 'com.arello-mobile:moxy-android:1.4.5'
 }

@@ -5,9 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
+import com.example.michailgromtsev.newsreader.About.AboutActivity;
 import com.example.michailgromtsev.newsreader.details.NewsDetailsFragment;
 import com.example.michailgromtsev.newsreader.news.NewsListFragment;
 import com.example.michailgromtsev.newsreader.news.adapter.recycler.NewsItem;
@@ -57,12 +60,22 @@ public class MainActivity extends AppCompatActivity implements NewsListFragment.
         return true;
     }
 
-     private void setupToolbar() {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.about_activity:
+                startActivity( new Intent(this, AboutActivity.class) );
+            default:
+                    return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void setupToolbar() {
      setSupportActionBar(toolbar);
      getSupportActionBar().setDisplayShowTitleEnabled(true);
 
          getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
     }
 
     @Override
